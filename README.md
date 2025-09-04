@@ -1,5 +1,7 @@
 ﻿# Set-EngageFeatureAccess
 
+Check out the blog article here: [Admin Guide: Controlling Copilot in Viva Engage](https://blog.brianbaldock.net/admin-guide-controlling-copilot-in-viva-engage)
+
 Manage **Viva Engage** feature access policies (e.g., **Copilot in Viva Engage** and **AI‑Powered Summarization**) with idempotent, automation‑friendly PowerShell.
 
 > **Effective policy rules (per Microsoft):**  
