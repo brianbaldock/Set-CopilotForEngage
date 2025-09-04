@@ -28,28 +28,32 @@ Keep memberships **mutually exclusive** per feature when possible; if a user lan
 
 ## Quick start
 
-> Requires: PowerShell 5.1+, `ExchangeOnlineManagement` 3.9.0+ (the module helper can auto‑install/update with switches).
+> Requires: PowerShell 5.1+, `ExchangeOnlineManagement` 3.9.0+ (the module helper can auto‑install/update with switches) see step 2a
 
 ```powershell
-# 1) Baseline: Disable both features org‑wide
+# 1) Dot source the mini module
+. .\Set-CopilotForEngage.ps1
+
+# 2a) Baseline: Use this to disable both features org-wide and install/update the to the latest version of Exchange Online Managment PowerShell Module
+Set-EngageFeatureAccess -Mode Disable -Copilot -AISummarization -Everyone -PolicyNamePrefix "All" -AutoInstallEXO -AutoUpdateEXO -Confirm:$false -Verbose
+
+# 2b) Baseline: Disable both features org‑wide 
 Set-EngageFeatureAccess -Mode Disable -Copilot -AISummarization `
   -Everyone -PolicyNamePrefix "All" -Confirm:$false -Verbose
 
 # 2) Enable Copilot for one or more groups
 Set-EngageFeatureAccess -Mode Enable -Copilot `
-  -GroupIds "e25dc5ed-9ccf-4d04-bb06-1b77fda4e636" `
+  -GroupIds "GROUP GUID HERE" `
   -PolicyNamePrefix "Enable" -Confirm:$false -Verbose
 
 # 3) Enable AI Summarization for one or more groups
 Set-EngageFeatureAccess -Mode Enable -AISummarization `
-  -GroupIds "c62c7ce6-5aef-4b67-b420-fa5deb75ecd6" `
+  -GroupIds "GROUP GUID HERE" `
   -PolicyNamePrefix "Enable" -Confirm:$false -Verbose
 
 # 4) Verify policy layout
 Get-VivaModuleFeaturePolicy -ModuleId VivaEngage
 ```
-
-> Tip: Add `-AutoInstallEXO` / `-AutoUpdateEXO` to `Set-EngageFeatureAccess` if you want the helper to ensure the Exchange Online module is present/up‑to‑date.
 
 ---
 
@@ -57,7 +61,7 @@ Get-VivaModuleFeaturePolicy -ModuleId VivaEngage
 
 The view below shows **two org‑wide block policies** (one per feature) and **two group‑targeted enable policies**. With this layout, anyone **not** in an enable group stays blocked; group members are enabled.
 
-![Policy layout screenshot](Images/policy-layout.png)
+![Policy layout screenshot](Images/Policy%20Layout.png)
 
 ---
 
@@ -91,6 +95,7 @@ The view below shows **two org‑wide block policies** (one per feature) and **t
   (`ResourceUnavailable`, `ConnectionError`, etc.).  
 - **Feature appears disabled unexpectedly for a user** → check for overlapping policies; remember
   *Disabled* beats *Enabled*, and **group/user assignment** beats **org‑wide**.
+  **Failed to complete the request: Please confirm that you have the necessary permissions to manage <moduleId/featureId> and that the <moduleId/featureId> provided is valid.** → Validate that you have elevated privileges to run this script in your tenant
 
 ---
 

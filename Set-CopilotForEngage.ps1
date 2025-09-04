@@ -189,10 +189,22 @@ function Update-VivaPolicy {
     }
 
     if ($existing) {
-        if ($PSCmdlet.ShouldProcess("Update '$PolicyName'", "Set-VivaModuleFeaturePolicy IsFeatureEnabled:$IsEnabled")) {
-            $setfeats = @{ Identity = $existing.Identity; IsFeatureEnabled = $IsEnabled }
-            if ($applyOptIn) { $setfeats.IsUserOptedInByDefault = $UserOptInByDefault }
-            Set-VivaModuleFeaturePolicy @setfeats -Confirm:$false -ErrorAction Stop | Out-Null
+        if ($PSCmdlet.ShouldProcess("Update '$PolicyName'", "Update-VivaModuleFeaturePolicy IsFeatureEnabled:$IsEnabled")) {
+
+            $setfeats = @{
+                ModuleId         = 'VivaEngage'
+                FeatureId        = $FeatureId
+                PolicyId         = $existing.PolicyId
+                IsFeatureEnabled = $IsEnabled
+            }
+
+            if ($PSBoundParameters.ContainsKey('UserOptInByDefault')) {
+                $setfeats.IsUserControlEnabled = $true
+                $setfeats.IsUserOptedInByDefault = $UserOptInByDefault
+            }
+
+            Update-VivaModuleFeaturePolicy @setfeats -Confirm:$false -ErrorAction Stop | Out-Null
+
             $updated = Get-VivaModuleFeaturePolicy -ModuleId VivaEngage -FeatureId $FeatureId -ErrorAction Stop |
             Where-Object { Test-PolicyNameMatch -InputObject $_ -PolicyName $PolicyName } |
             Select-Object -First 1
@@ -200,6 +212,7 @@ function Update-VivaPolicy {
         }
         return $existing
     }
+
 
     $feats = @{ ModuleId = 'VivaEngage'; FeatureId = $FeatureId; Name = $PolicyName; IsFeatureEnabled = $IsEnabled }
     if ($Everyone) { $feats.Everyone = $true }
